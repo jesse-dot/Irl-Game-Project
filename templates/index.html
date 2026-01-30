@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Game Project - Image Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 AI Game Project</h1>
+            <p class="subtitle">Upload an image and watch the AI make game-like decisions</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <h2>📸 Upload Image</h2>
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" accept="image/*" hidden>
+                    <div class="upload-prompt">
+                        <span class="upload-icon">📁</span>
+                        <p>Click to upload or drag and drop</p>
+                        <p class="upload-hint">Supported: PNG, JPG, JPEG, GIF, BMP, WebP</p>
+                    </div>
+                </div>
+                <div id="imagePreview" class="image-preview hidden">
+                    <img id="previewImg" src="" alt="Preview">
+                </div>
+                <button id="analyzeBtn" class="btn btn-primary hidden">Analyze Image</button>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <h2>🤖 AI Decision</h2>
+                <div id="results" class="results-box">
+                    <p class="placeholder">Upload an image to see AI analysis...</p>
+                </div>
+            </div>
+
+            <!-- Inventory Section -->
+            <div class="inventory-section">
+                <h2>🎒 Inventory</h2>
+                <div class="inventory-controls">
+                    <button id="clearInventoryBtn" class="btn btn-secondary">Clear All</button>
+                </div>
+                <div id="inventory" class="inventory-grid">
+                    <!-- Inventory slots will be generated here -->
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="history-section">
+                <h2>📜 Action History</h2>
+                <div id="history" class="history-list">
+                    <p class="placeholder">No actions yet...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>AI is thinking...</p>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
