@@ -1,0 +1,372 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+}
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+header {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    font-size: 3em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+}
+
+.subtitle {
+    font-size: 1.2em;
+    opacity: 0.9;
+}
+
+.main-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.upload-section,
+.results-section,
+.inventory-section,
+.history-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.upload-section {
+    grid-column: 1;
+}
+
+.results-section {
+    grid-column: 2;
+}
+
+.inventory-section {
+    grid-column: 1 / -1;
+}
+
+.history-section {
+    grid-column: 1 / -1;
+}
+
+h2 {
+    color: #667eea;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+}
+
+.upload-area {
+    border: 3px dashed #667eea;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: #f8f9ff;
+}
+
+.upload-area:hover {
+    border-color: #764ba2;
+    background: #f0f2ff;
+}
+
+.upload-area.dragover {
+    border-color: #764ba2;
+    background: #e8eaff;
+    transform: scale(1.02);
+}
+
+.upload-icon {
+    font-size: 4em;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.upload-prompt p {
+    margin: 5px 0;
+}
+
+.upload-hint {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.image-preview {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.image-preview img {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 100%;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: #e0e0e0;
+    color: #333;
+}
+
+.btn-secondary:hover {
+    background: #d0d0d0;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.results-box {
+    background: #f8f9ff;
+    border-radius: 10px;
+    padding: 20px;
+    min-height: 200px;
+}
+
+.placeholder {
+    color: #999;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.result-item {
+    margin-bottom: 15px;
+}
+
+.result-item strong {
+    color: #667eea;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.action-badge {
+    display: inline-block;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    margin: 5px 0;
+}
+
+.action-WALK_FORWARD { background: #4caf50; color: white; }
+.action-TURN_LEFT { background: #2196f3; color: white; }
+.action-TURN_RIGHT { background: #03a9f4; color: white; }
+.action-PROCEED_TO { background: #00bcd4; color: white; }
+.action-PICK_UP { background: #8bc34a; color: white; }
+.action-EXAMINE { background: #ffc107; color: #333; }
+.action-USE { background: #ff9800; color: white; }
+.action-PUT_IN_INVENTORY { background: #9c27b0; color: white; }
+.action-TAKE_FROM_INVENTORY { background: #e91e63; color: white; }
+.action-OBSERVE { background: #2196f3; color: white; }
+.action-EXPLORE { background: #ff9800; color: white; }
+.action-DROP { background: #f44336; color: white; }
+.action-ERROR { background: #f44336; color: white; }
+
+.detected-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.item-tag {
+    background: #e8eaff;
+    color: #667eea;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.9em;
+}
+
+.inventory-controls {
+    margin-bottom: 15px;
+}
+
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+.inventory-slot {
+    aspect-ratio: 1;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9ff;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.inventory-slot.filled {
+    border-color: #667eea;
+    background: #e8eaff;
+}
+
+.inventory-slot:hover.filled {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.slot-number {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    font-size: 0.8em;
+    color: #999;
+}
+
+.slot-item {
+    font-size: 2em;
+    margin-bottom: 5px;
+}
+
+.slot-name {
+    font-size: 0.8em;
+    color: #667eea;
+    font-weight: bold;
+    word-break: break-word;
+}
+
+.slot-quantity {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.remove-item-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: #f44336;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    font-size: 0.8em;
+    cursor: pointer;
+    display: none;
+}
+
+.inventory-slot.filled:hover .remove-item-btn {
+    display: block;
+}
+
+.history-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.history-item {
+    background: #f8f9ff;
+    border-left: 4px solid #667eea;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.history-item .action {
+    font-weight: bold;
+    color: #667eea;
+    margin-bottom: 5px;
+}
+
+.history-item .reasoning {
+    color: #666;
+    font-size: 0.95em;
+}
+
+.history-item .timestamp {
+    color: #999;
+    font-size: 0.85em;
+    margin-top: 5px;
+}
+
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    color: white;
+}
+
+.spinner {
+    border: 4px solid rgba(255, 255, 255, 0.3);
+    border-top: 4px solid white;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .upload-section,
+    .results-section,
+    .inventory-section,
+    .history-section {
+        grid-column: 1;
+    }
+    
+    header h1 {
+        font-size: 2em;
+    }
+}
