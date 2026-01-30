@@ -5,8 +5,10 @@ Provides web UI for uploading images/videos and viewing AI decisions
 
 from flask import Flask, render_template, request, jsonify
 import os
+import io
 from werkzeug.utils import secure_filename
 from ai_agent import GameAI
+from PIL import Image
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -50,6 +52,12 @@ def analyze():
         # Read file data
         image_data = file.read()
         
+        # Validate it's actually an image
+        try:
+            Image.open(io.BytesIO(image_data)).verify()
+        except Exception:
+            return jsonify({'error': 'Invalid image file'}), 400
+        
         # Analyze with AI
         result = ai_agent.analyze_image(image_data)
         
@@ -81,6 +89,13 @@ def clear_inventory():
 @app.route('/api/inventory/remove/<int:slot_id>', methods=['POST'])
 def remove_item(slot_id):
     """Remove item from specific slot"""
+    # Validate slot_id
+    if slot_id < 0 or slot_id >= ai_agent.inventory_size:
+        return jsonify({
+            'success': False,
+            'error': f'Invalid slot_id. Must be between 0 and {ai_agent.inventory_size - 1}'
+        }), 400
+    
     item = ai_agent.remove_from_inventory(slot_id)
     return jsonify({
         'success': item is not None,
@@ -96,4 +111,9 @@ def get_history():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    # Get configuration from environment variables
+    debug = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    host = os.getenv('FLASK_HOST', '0.0.0.0')
+    port = int(os.getenv('FLASK_PORT', '5000'))
+    
+    app.run(debug=debug, host=host, port=port)

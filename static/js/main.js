@@ -97,6 +97,11 @@ async function analyzeImage() {
     }
 }
 
+function sanitizeActionName(action) {
+    // Sanitize action name for CSS class - replace spaces and special chars
+    return action.replace(/\s+/g, '_').replace(/[^a-zA-Z0-9_]/g, '').toUpperCase();
+}
+
 function displayResults(result) {
     const resultsDiv = document.getElementById('results');
     
@@ -115,11 +120,13 @@ function displayResults(result) {
             ${result.detected_items.map(item => `<span class="item-tag">${item}</span>`).join('')}
            </div>`
         : '';
+    
+    const actionClass = sanitizeActionName(result.action);
 
     resultsDiv.innerHTML = `
         <div class="result-item">
             <strong>Action Taken:</strong>
-            <div class="action-badge action-${result.action.replace(/ /g, '_').toUpperCase()}">${result.action}</div>
+            <div class="action-badge action-${actionClass}">${result.action}</div>
         </div>
         <div class="result-item">
             <strong>AI Reasoning:</strong>
@@ -163,6 +170,9 @@ async function loadInventory() {
         updateInventory(inventory);
     } catch (error) {
         console.error('Failed to load inventory:', error);
+        // Show error in UI
+        const inventoryDiv = document.getElementById('inventory');
+        inventoryDiv.innerHTML = '<p style="color: #f44336;">Failed to load inventory</p>';
     }
 }
 
@@ -177,7 +187,7 @@ function updateInventory(inventory) {
             <div class="inventory-slot ${filled ? 'filled' : ''}" data-slot="${slot.slot_id}">
                 <span class="slot-number">${slot.slot_id}</span>
                 ${filled ? `
-                    <button class="remove-item-btn" onclick="removeItem(${slot.slot_id})">×</button>
+                    <button class="remove-item-btn" data-slot-id="${slot.slot_id}">×</button>
                     <div class="slot-item">${itemIcon}</div>
                     <div class="slot-name">${slot.item}</div>
                     <div class="slot-quantity">×${slot.quantity}</div>
@@ -185,6 +195,15 @@ function updateInventory(inventory) {
             </div>
         `;
     }).join('');
+    
+    // Add event listeners for remove buttons using event delegation
+    inventoryDiv.querySelectorAll('.remove-item-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const slotId = parseInt(this.getAttribute('data-slot-id'));
+            removeItem(slotId);
+        });
+    });
 }
 
 function getItemIcon(itemName) {
@@ -253,6 +272,8 @@ async function loadHistory() {
         displayHistory(history);
     } catch (error) {
         console.error('Failed to load history:', error);
+        const historyDiv = document.getElementById('history');
+        historyDiv.innerHTML = '<p style="color: #f44336;">Failed to load history</p>';
     }
 }
 
@@ -264,10 +285,12 @@ function displayHistory(history) {
         return;
     }
     
-    historyDiv.innerHTML = history.slice().reverse().map((action, index) => `
+    historyDiv.innerHTML = history.slice().reverse().map((action, index) => {
+        const actionClass = sanitizeActionName(action.action);
+        return `
         <div class="history-item">
             <div class="action">
-                <span class="action-badge action-${action.action.replace(/ /g, '_').toUpperCase()}">${action.action}</span>
+                <span class="action-badge action-${actionClass}">${action.action}</span>
             </div>
             <div class="reasoning">${action.reasoning}</div>
             ${action.detected_items && action.detected_items.length > 0 ? `
@@ -276,7 +299,8 @@ function displayHistory(history) {
                 </div>
             ` : ''}
         </div>
-    `).join('');
+    `;
+    }).join('');
 }
 
 // Loading overlay

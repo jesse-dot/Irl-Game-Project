@@ -66,10 +66,11 @@ class GameAI:
         "Take [Object] from inventory"
     ]
     
-    def __init__(self, inventory_size: int = 10):
+    def __init__(self, inventory_size: int = 10, max_history_size: int = 100):
         self.inventory_size = inventory_size
         self.inventory = [InventorySlot(i) for i in range(inventory_size)]
         self.actions_history = []
+        self.max_history_size = max_history_size
         
         # Initialize Gemini API
         api_key = os.getenv('GEMINI_API_KEY')
@@ -98,8 +99,10 @@ class GameAI:
             else:
                 decision = self._fallback_analysis(image, width, height)
             
-            # Record the action
+            # Record the action with history limit
             self.actions_history.append(decision)
+            if len(self.actions_history) > self.max_history_size:
+                self.actions_history.pop(0)  # Remove oldest action
             
             return decision
             
@@ -152,15 +155,20 @@ Think like you're playing a game. Be specific about objects you see and choose t
             
             lines = response_text.strip().split('\n')
             for line in lines:
-                if line.startswith('ACTION:'):
-                    action = line.replace('ACTION:', '').strip()
-                elif line.startswith('REASONING:'):
-                    reasoning = line.replace('REASONING:', '').strip()
-                elif line.startswith('DETECTED_ITEMS:'):
-                    items_str = line.replace('DETECTED_ITEMS:', '').strip()
+                if line.upper().startswith('ACTION:'):
+                    action = line[line.index(':')+1:].strip()
+                elif line.upper().startswith('REASONING:'):
+                    reasoning = line[line.index(':')+1:].strip()
+                elif line.upper().startswith('DETECTED_ITEMS:'):
+                    items_str = line[line.index(':')+1:].strip()
                     detected_items = [item.strip() for item in items_str.split(',') if item.strip()]
-                elif line.startswith('SCENE:'):
-                    scene_analysis = line.replace('SCENE:', '').strip()
+                elif line.upper().startswith('SCENE:'):
+                    scene_analysis = line[line.index(':')+1:].strip()
+            
+            # Validate that we got meaningful data
+            if not action or action == "Observe":
+                # Response didn't have proper format, use fallback
+                return self._fallback_analysis(image, image.size[0], image.size[1])
             
             # Handle inventory actions
             if "put" in action.lower() and "inventory" in action.lower():
@@ -189,6 +197,8 @@ Think like you're playing a game. Be specific about objects you see and choose t
             }
             
         except Exception as e:
+            # Log the error for debugging
+            print(f"Gemini API error: {type(e).__name__}: {str(e)}")
             # Fallback to simple analysis if Gemini fails
             return self._fallback_analysis(image, image.size[0], image.size[1])
     
@@ -200,8 +210,17 @@ Think like you're playing a game. Be specific about objects you see and choose t
         image_small = image.resize((50, 50))
         pixels = list(image_small.getdata())
         
-        # Calculate average brightness
-        brightness = sum(sum(p[:3]) if isinstance(p, tuple) else p for p in pixels) / (len(pixels) * 3)
+        # Calculate average brightness with proper handling for different image modes
+        if image.mode == 'RGB' or image.mode == 'RGBA':
+            brightness = sum(sum(p[:3]) for p in pixels) / (len(pixels) * 3)
+        elif image.mode == 'L':
+            # Grayscale - pixels are single integers
+            brightness = sum(pixels) / len(pixels)
+        else:
+            # Convert to RGB first for other modes
+            image = image.convert('RGB')
+            pixels = list(image_small.getdata())
+            brightness = sum(sum(p[:3]) for p in pixels) / (len(pixels) * 3)
         
         # Detect objects based on simple heuristics (placeholder for real AI)
         detected_items = self._detect_items(image, brightness)

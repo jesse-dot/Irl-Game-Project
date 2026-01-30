@@ -174,6 +174,11 @@ Perfect for this project! No credit card required.
 - Supported formats: PNG, JPG, JPEG, GIF, BMP, WebP
 - Max file size: 16MB
 
+### Multi-User Considerations
+- Currently, all users share the same inventory and action history
+- For production use with multiple users, consider implementing session-based storage
+- Set `FLASK_DEBUG=false` in production environments
+
 ## Contributing
 
 Feel free to open issues or submit pull requests!
